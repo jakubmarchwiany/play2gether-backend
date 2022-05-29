@@ -104,7 +104,7 @@ module.exports.newPlace = async (req, res, next) => {
 };
 
 module.exports.getPlaces = async (req, res, next) => {
-    let places = await Place.find({}, { status: 0 });
+    let places = await Place.find({}, { status: 0 }).populate("events");
     res.send(places);
 };
 
@@ -112,7 +112,6 @@ module.exports.getPlace = async (req, res, next) => {
     let { id } = req.params;
 
     let place = await Place.findById(id).populate("events");
-
     res.send(place);
 };
 

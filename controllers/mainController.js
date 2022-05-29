@@ -4,14 +4,14 @@ const jwt = require("jsonwebtoken");
 
 const { getToken, COOKIE_OPTIONS, getRefreshToken } = require("../authenticate");
 
-module.exports.getUserDate = async(req, res,next) => {
-    let user = await User.findById(req.user.id,{authStrategy: 0,refreshToken: 0})
+module.exports.getUserDate = async (req, res, next) => {
+    let user = await User.findById(req.user.id, { authStrategy: 0, refreshToken: 0 });
 
     res.send(user);
 };
 
 module.exports.registerUser = (req, res, next) => {
-    console.log("register")
+    console.log("register");
     if (!req.body.firstName) {
         res.statusCode = 500;
         res.send({
@@ -26,7 +26,13 @@ module.exports.registerUser = (req, res, next) => {
             } else {
                 user.firstName = req.body.firstName;
                 user.lastName = req.body.lastName;
-                user.type= "user";
+                user.type = "user";
+        
+                user.image = {
+                    url: "https://res.cloudinary.com/kvbik/image/upload/v1652121848/Play2Gether/defUser_yxrj4x.png",
+                    id: "def",
+                };
+
                 const token = getToken({ _id: user._id });
                 const refreshToken = getRefreshToken({ _id: user._id });
                 user.refreshToken.push({ refreshToken });
@@ -44,7 +50,7 @@ module.exports.registerUser = (req, res, next) => {
     }
 };
 
-module.exports.loginUser = (req, res,next) => {
+module.exports.loginUser = (req, res, next) => {
     const token = getToken({ _id: req.user._id });
     const refreshToken = getRefreshToken({ _id: req.user._id });
     User.findById(req.user._id).then(
@@ -64,7 +70,7 @@ module.exports.loginUser = (req, res,next) => {
     );
 };
 
-module.exports.refreshToken = (req, res,next) => {
+module.exports.refreshToken = (req, res, next) => {
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
 
@@ -114,9 +120,9 @@ module.exports.refreshToken = (req, res,next) => {
         res.statusCode = 401;
         res.send("Unauthorized");
     }
-}
+};
 
-module.exports.logoutUser = (req,res,next) => {
+module.exports.logoutUser = (req, res, next) => {
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
 
@@ -143,4 +149,4 @@ module.exports.logoutUser = (req,res,next) => {
         },
         (err) => next(err)
     );
-}
+};
