@@ -13,6 +13,7 @@ router.post("/accountImage",verifyUser,userController.updateUserImage);
 router.post("/newPlace",verifyUser, userController.newPlace);
 
 router.get("/getPlaces", userController.getPlaces);
+router.get("/getInactivePlaces", userController.getInactivePlaces);
 
 router.get("/getPlace/:id", verifyUser, userController.getPlace)
 

@@ -13,7 +13,7 @@ module.exports.getUserDate = async (req, res, next) => {
 module.exports.registerUser = (req, res, next) => {
     console.log("register");
     if (!req.body.firstName) {
-        res.statusCode = 500;
+        res.statusCode = 400;
         res.send({
             name: "FirstNameError",
             message: "The first name is required",
@@ -21,13 +21,13 @@ module.exports.registerUser = (req, res, next) => {
     } else {
         User.register(new User({ username: req.body.username }), req.body.password, (err, user) => {
             if (err) {
-                res.statusCode = 500;
+                res.statusCode = 400;
                 res.send(err);
             } else {
                 user.firstName = req.body.firstName;
                 user.lastName = req.body.lastName;
                 user.type = "user";
-        
+
                 user.image = {
                     url: "https://res.cloudinary.com/kvbik/image/upload/v1652121848/Play2Gether/defUser_yxrj4x.png",
                     id: "def",
@@ -38,7 +38,7 @@ module.exports.registerUser = (req, res, next) => {
                 user.refreshToken.push({ refreshToken });
                 user.save((err, user) => {
                     if (err) {
-                        res.statusCode = 500;
+                        res.statusCode = 400;
                         res.send(err);
                     } else {
                         res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);

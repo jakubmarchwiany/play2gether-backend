@@ -104,7 +104,12 @@ module.exports.newPlace = async (req, res, next) => {
 };
 
 module.exports.getPlaces = async (req, res, next) => {
-    let places = await Place.find({}, { status: 0 }).populate("events");
+    let places = await Place.find({status: "active"}, { status: 0 }).populate("events");
+    res.send(places);
+};
+
+module.exports.getInactivePlaces = async (req, res, next) => {
+    let places = await Place.find({status: "inactive"}, { status: 0 }).populate("events");
     res.send(places);
 };
 
