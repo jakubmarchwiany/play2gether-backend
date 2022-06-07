@@ -67,9 +67,23 @@ module.exports.updateUserImage = async (req, res, next) => {
     }
 };
 
+const cloudinaryImageUploadMethod = async (file) => {
+    return new Promise((resolve) => {
+        cloudinary.uploader.upload(
+            file,
+            { upload_preset: "ml_default", folder: "Play2Gether/Places" },
+            (err, res) => {
+                if (err) return res.status(500).send("upload image error");
+                resolve({ url: res.secure_url, id: res.public_id });
+            }
+        );
+    });
+};
+
 module.exports.newPlace = async (req, res, next) => {
-    let { name, description,sports } = req.body;
+    let { name, description, sports } = req.body;
     let { longitude, latitude } = req.body.location;
+    let { data: images } = req.body;
 
     if (!name || !description || !longitude || !latitude) {
         res.statusCode = 500;
@@ -81,16 +95,26 @@ module.exports.newPlace = async (req, res, next) => {
 
             let geometry = { type: "Point", coordinates: [longitude, latitude] };
 
+            const infoImages = [];
+            for (const image of images) {
+                const { dataURL } = image;
+                const infoImage = await cloudinaryImageUploadMethod(dataURL);
+                infoImages.push(infoImage);
+            }
+
+            console.log(infoImages);
+
             let place = new Place({
                 status: "inactive",
                 name,
                 owner: req.user.id,
                 description,
+                images: infoImages,
                 sports,
                 geometry,
             });
 
-            console.log(req.body)
+            console.log(place);
 
             await User.findByIdAndUpdate(req.user.id, { $push: { myPlaces: place } });
             await place.save();
@@ -104,12 +128,12 @@ module.exports.newPlace = async (req, res, next) => {
 };
 
 module.exports.getPlaces = async (req, res, next) => {
-    let places = await Place.find({status: "active"}, { status: 0 }).populate("events");
+    let places = await Place.find({ status: "active" }, { status: 0 }).populate("events");
     res.send(places);
 };
 
 module.exports.getInactivePlaces = async (req, res, next) => {
-    let places = await Place.find({status: "inactive"}, { status: 0 }).populate("events");
+    let places = await Place.find({ status: "inactive" }, { status: 0 });
     res.send(places);
 };
 
@@ -126,7 +150,7 @@ module.exports.newEvent = async (req, res, next) => {
 
     let { startDate, maxPeople, sport } = req.body;
 
-    console.log(sport)
+    console.log(sport);
 
     try {
         if (maxPeople.length == 0) {
@@ -142,7 +166,7 @@ module.exports.newEvent = async (req, res, next) => {
             var newEvent = new Event({
                 owner: ownerId,
                 place: placeId,
-                sport:sport,
+                sport: sport,
                 date: new Date(startDate),
                 signedUp: ownerId,
                 maxSignedUp: maxPeople,
@@ -215,5 +239,43 @@ module.exports.getEvent = async (req, res, next) => {
         res.send({
             message: "Błąd",
         });
+    }
+};
+
+module.exports.adminAcceptedPlace = async (req, res, next) => {
+    let { id, name, description, sports } = req.body;
+    let { longitude, latitude } = req.body.location;
+
+    try {
+        latitude = parseFloat(latitude);
+        longitude = parseFloat(longitude);
+
+        let geometry = { type: "Point", coordinates: [longitude, latitude] };
+
+        await Place.findByIdAndUpdate(id, {
+            $set: { status: "active", name, description, sports, geometry },
+        });
+        res.statusCode = 200;
+        res.send();
+    } catch (error) {
+        res.statusCode = 500;
+        res.send();
+    }
+};
+
+module.exports.adminDeniedPlace = async (req, res, next) => {
+    let { id } = req.body;
+
+
+    try {
+        let place = await Place.findByIdAndDelete(id);
+        await User.findByIdAndUpdate(place.owner, { $pull: { myPlaces: id } });
+        
+
+        res.statusCode = 200;
+        res.send();
+    } catch (error) {
+        res.statusCode = 500;
+        res.send();
     }
 };

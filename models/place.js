@@ -19,6 +19,11 @@ const Place = new Schema({
         default: "",
     },
     sports:[String],
+    images: [{
+        _id: false,
+        url: String,
+        id: String,
+    }],
     events: [
         {
             type: Schema.Types.ObjectId,
