@@ -6,20 +6,21 @@ const Event = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
     },
-    place:{
+    place: {
         type: Schema.Types.ObjectId,
         ref: "Place",
     },
-    sport:String,
+    sport: String,
     date: Date,
-    signedUp: [{
-        type: Schema.Types.ObjectId,
-        ref: "User",
-    }],
+    signedUp: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
     maxSignedUp: {
         type: Number,
     },
 });
-
 
 module.exports = mongoose.model("Event", Event);

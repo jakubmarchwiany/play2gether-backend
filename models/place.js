@@ -18,12 +18,14 @@ const Place = new Schema({
         type: String,
         default: "",
     },
-    sports:[String],
-    images: [{
-        _id: false,
-        url: String,
-        id: String,
-    }],
+    sports: [String],
+    images: [
+        {
+            _id: false,
+            url: String,
+            id: String,
+        },
+    ],
     events: [
         {
             type: Schema.Types.ObjectId,
@@ -33,15 +35,14 @@ const Place = new Schema({
     geometry: {
         type: {
             type: String,
-            enum: ['Point'],
-            required: true
+            enum: ["Point"],
+            required: true,
         },
         coordinates: {
             type: [Number],
-            required: true
-        }
+            required: true,
+        },
     },
 });
-
 
 module.exports = mongoose.model("Place", Place);

@@ -223,13 +223,29 @@ module.exports.leaveFromEvent = async (req, res, next) => {
     }
 };
 
+module.exports.deleteEvent = async (req, res, next) => {
+    let { id: eventId } = req.params;
+
+    let event = await Event.findById(eventId);
+    if (req.user.id != event.owner.toString()) {
+        res.statusCode = 500;
+        res.send();
+    } else {
+        await Event.findByIdAndDelete(eventId);
+        await Place.findByIdAndUpdate(event.place, { $pull: { events: eventId } });
+
+        res.statusCode = 200;
+        res.send();
+    }
+};
+
 module.exports.getEvent = async (req, res, next) => {
     let { id: eventId } = req.params;
 
     try {
         let event = await Event.findById(eventId).populate({
             path: "signedUp",
-            select: "firstName lastName image",
+            select: "firstName lastName image type",
         });
         console.log(event);
         res.statusCode = 200;
@@ -266,11 +282,9 @@ module.exports.adminAcceptedPlace = async (req, res, next) => {
 module.exports.adminDeniedPlace = async (req, res, next) => {
     let { id } = req.body;
 
-
     try {
         let place = await Place.findByIdAndDelete(id);
         await User.findByIdAndUpdate(place.owner, { $pull: { myPlaces: id } });
-        
 
         res.statusCode = 200;
         res.send();

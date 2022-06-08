@@ -18,10 +18,12 @@ router.get("/getInactivePlaces", userController.getInactivePlaces);
 router.get("/getPlace/:id", verifyUser, userController.getPlace);
 
 router.post("/place/:id/newEvent", verifyUser, userController.newEvent);
+
 router.get("/getEvent/:id", verifyUser, userController.getEvent);
 
 router.get("/event/:id/join", verifyUser, userController.joinToEvent);
 router.get("/event/:id/leave", verifyUser, userController.leaveFromEvent);
+router.get("/event/:id/delete", verifyUser, userController.deleteEvent);
 
 router.post("/acceptedPlace", userController.adminAcceptedPlace);
 router.post("/deniedPlace", userController.adminDeniedPlace);
