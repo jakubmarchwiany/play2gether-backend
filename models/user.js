@@ -13,7 +13,7 @@ const Session = new Schema({
 const User = new Schema({
     type: {
         type: String,
-        enum: ["admin", "user","premium"],
+        enum: ["admin", "user", "premium"],
     },
     firstName: {
         type: String,
@@ -56,5 +56,18 @@ User.set("toJSON", {
     },
 });
 
-User.plugin(passportLocalMongoose);
+var options = {
+    errorMessages: {
+        MissingPasswordError: "No password was given",
+        AttemptTooSoonError: "Account is currently locked. Try again later",
+        TooManyAttemptsError: "Account locked due to too many failed login attempts",
+        NoSaltValueStoredError: "Authentication not possible. No salt value stored",
+        IncorrectPasswordError: "Password or username are incorrect",
+        IncorrectUsernameError: "Password or username are incorrect",
+        MissingUsernameError: "No username was given",
+        UserExistsError: "Istnieje konto z takim mailem",
+    },
+};
+
+User.plugin(passportLocalMongoose, options);
 module.exports = mongoose.model("User", User);

@@ -4,7 +4,7 @@ const passport = require("passport");
 
 const { verifyUser } = require("../authenticate");
 
-const mainController = require("../controllers/mainController")
+const mainController = require("../controllers/mainController");
 
 router.get("/getUser", verifyUser, mainController.getUserDate);
 
